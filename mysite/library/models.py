@@ -9,10 +9,15 @@ class Genre(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = 'Žanras'
+        verbose_name_plural = 'Žanrai'
+
 
 class Book(models.Model):
     title = models.CharField('Pavadinimas', max_length=200)
-    author = models.ForeignKey('Author', on_delete=models.SET_NULL, null=True)
+    author = models.ForeignKey('Author', on_delete=models.SET_NULL, null=True,
+                               related_name='books')
     summary = models.TextField('Aprašymas', max_length=1000,
                                help_text='Knygos santrauka')
     isbn = models.CharField('ISBN', max_length=13,
@@ -24,6 +29,11 @@ class Book(models.Model):
 
     def get_absolute_url(self):
         return reverse('Autoriaus aprašymas', args=[str(self.id)])
+
+    def display_genre(self):
+        return ', '.join(genre.name for genre in self.genre.all()[:3])
+
+    display_genre.short_description = 'Žanras'
 
 
 class BookInstance(models.Model):
@@ -65,3 +75,8 @@ class Author(models.Model):
 
     def __str__(self):
         return f'{self.last_name} {self.first_name}'
+
+    def display_books(self):
+        return ', '.join(book.title for book in self.books.all()[:3])
+
+    display_books.short_description = 'Knygos'
